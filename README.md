@@ -1,4 +1,4 @@
-shimokita.js
+Shimokita.js
 ============
 
 ### Shimokita.jsができた背景

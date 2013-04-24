@@ -1,6 +1,13 @@
 Shimokita.js
 ============
 
+
+|次回開催日| イベントリンク |
+|:--------:|:--------------:|
+| __5/18(土)__| https://www.facebook.com/events/366004110177239/ |
+
+
+
 ### Shimokita.jsができた背景
 - Shimokita.php, Shimokita.rb があってShimokita.jsがないのはおかしい！
 

@@ -98,6 +98,7 @@ Shimokita.js
 - この程度は知っておいたほうがいいかも↓
   - 基本的なJavaScriptの文法
   - JavaScriptのprototypeってなに？
+  - jQueryの基礎知識
 
 
 

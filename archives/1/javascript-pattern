@@ -1,0 +1,627 @@
+### global変数 ###{{{
+
+== 問題点 =={{{
+
+・名前の衝突
+・可読性が著しく低くなる
+・名前解決が遅い
+}}}
+== globalの罠 =={{{
+function sum(x, y) {
+    result = x + y;   // global var
+    return result;
+}
+
+function foo() {
+    var a = b = 0;   // b is global
+    // ....
+
+    var a = 0,
+        b = 0;
+   
+}
+
+
+myname = "global";
+function func() {
+    console.log(myname);
+    var myname = "local";
+    console.log(myname);
+}
+
+
+
+
+
+
+
+}}}
+== 宣言してるかしてないかわからんglobal変数を使うとき =={{{
+
+// Pattern 1
+if (! app) app = {};
+
+// Pattern 2
+if (! app) var app = {};
+
+// Pattern 3
+var MYAPP = MYAPP || {};
+
+}}}
+
+
+}}}
+### リテラルについて ###{{{
+
+== Array =={{{
+
+下記のようなものは使わない
+var arr = new Array();
+var obj = new Object();
+
+
+下記のようにしましょう
+var arr = [];
+var obj = {};
+
+
+・長い、冗長
+・Array, Objectの名前解決をする分、遅い
+
+[3]        // === 唯一の要素が"3"の配列
+Array(3)   // === 空要素が3つの配列
+
+
+[3].length        // === 1
+Array(3).length   // === 3
+
+
+}}}
+== isArray function =={{{
+
+typeof [1, 2] // === "object"
+
+ファ!!?
+
+
+ECMAScript5では実装ずみ
+Array.isArray([1,2]) // === true
+
+
+自分で実装
+
+({}).toString()    // === "[object Object]"
+([]).toString()    // === "[object Array]"
+
+の違いを利用
+
+
+if (typeof Array.isArray === "undefined") {
+    Array.isArray = function(arg) {
+        return Object.prototype.toString.call(arg) === "[object Array]";
+    }
+}
+
+
+return arg.toString()  === "[object Array]";   ???
+
+var obj = {
+    toString: function() {
+        return "[object Array]";
+    }
+};
+
+みたいな悪意満々なオブジェクトへの対策
+
+
+}}}
+
+}}}
+### 関数について ###{{{
+
+== クラスとしての利用 =={{{
+
+
+■ 宣言方法
+
+var func = function() {
+};
+// func.name === ""
+// 無名関数を変数に代入している
+// Firebugなどで関数名を参照できない
+// 簡潔ですっきりとした書き方
+// 他のオブジェクトとなんら変わらないことを強調出来る
+// こっちの書き方のほうが推奨
+
+
+function func() {
+}
+// func.name === "func"
+// 関数に名前を付けれる -> Firebugで関数名を参照できる
+// 巻き上げられる
+
+
+var func = function func() {
+};
+// 同じ事2回いっててダサい
+// けど上2つのいいとこどり
+
+// 別の名前で変数に定義することは
+// IEではサポートされていない書き方なので非推奨
+var foo = function bar() {
+};
+
+
+}}}
+
+}}}
+### クラスについて ###{{{
+
+== 基本事項 =={{{
+
+JavaScriptにそんなもんはない
+クラスっぽいものは作れる
+
+
+var Person = function(name) {   // コンストラクタとして使う場合は最初大文字 (暗黙ルール)
+    this.name = name;
+};
+
+Person.prototype = {
+   say: function() {
+        return "I'm " + this.name;
+    }
+};
+
+
+var tanaka = new Person('tanaka');
+tanaka.say() // === "I'm tanaka"
+
+
+}}}
+== thisとは？ =={{{
+
+JavaScriptパターンに書いてある内容ではないですが
+大事なことなので
+
+[持論]{{{
+
+thisとはその関数を所持しているオブジェクトを指す
+
+}}}
+[検証 その1]{{{
+id = "GLOBAL ID";
+
+var obj = {
+    id: "hogehoge",
+    getId: function() {
+        return this.id;
+    }
+};
+
+
+??? obj.getId() 
+
+var getId = obj.getId;
+
+??? getId()
+
+}}}
+[検証その2]{{{
+var obj2 = {
+    id: "bar",
+    getId: function() {
+        var _getId = obj.getId;
+        return _getId();
+    }
+};
+
+??? obj2.getId();
+
+}}}
+[結論]{{{
+
+thisとはなんだろう.......
+
+}}}
+
+パーフェクトJavaScript
+
+}}}
+== __proto__ とは？ =={{{
+
+JavaScriptパターンに書いて(ry
+
+var parent = new Parent();
+>> undefined
+
+parent
+>> Parent {name: "Parent", say: function}
+    name: "Parent"
+    __proto__: Object
+
+parent.__proto__ === Parent.prototype
+>> true
+
+
+parent.sayないよー。
+parent.__proto__.say探しにいくよー
+parent.__proto__.sayあったよー
+parent.__proto__.say実行するよー。コンテキストはこいつ自身だよー。
+
+}}}
+== new を強制的に使用 =={{{
+
+普通に関数としてつかえてしまう。。。
+
+var Person = function(name) { this.name = name; }
+>> undefined
+Person("hogehoge");
+>> undefined
+name
+>> "hogehoge"
+
+
+var MyClass = function() {
+    if (! (this instanceof MyClass)) {
+        return new MyClass();
+    }
+};
+
+
+var obj1 = new MyClass();
+var obj2 = MyClass();
+
+// どっちでもおｋ
+
+
+
+}}}
+== 再利用パターン =={{{
+
+継承どうするよ？って話
+
+var Parent = function(name) {
+    this.name = name || "Parent";
+};
+
+Parent.prototype = {
+    say: function() {
+        console.log("Hello! I'm " + this.name);
+    }
+};
+
+文言定義
+・クラシカルな -> Javaなどのクラスを仮定した概念や継承パターン
+・モダンな     -> クラスとか考えなくていいパターン
+
+
+1. クラシカルな継承方法: デフォルトパターン{{{
+
+var Child = function() {};
+Child.prototype = new Parent();
+
+[test]
+   var child = new Child('Ceasar');
+   child.say(); // 期待と違う
+
+[問題点]
+ - コンストラクタを使いまわせない
+
+}}}
+2. クラシカルな継承方法: コンストラクタ拝借{{{
+
+var Child = function() {
+    Parent.apply(this, arguments); // コンテキストをthisにした上でParent()を呼び出し
+};
+Child.prototype = new Parent();
+
+
+[test]
+   var child = new Child('Ceasar');
+   child.say(); // なんかよさそう
+
+
+[問題点]
+  - constructorが2回よばれちゃう
+}}}
+3. クラシカルな継承方法：prototype共有{{{
+
+Child.prototype = Parent.prototype;
+
+[問題点]
+  - 子供の変更が親に影響しちゃう。ダメ、絶対。
+
+}}}
+4. クラシカルな継承方法：一時的コンストラクタ{{{
+
+function inherit(C, P) {
+    var F = function() {};
+    F.prototype = P.prototype;
+    C.prototype = new F();
+}
+
+var Child = function() {
+    Parent.apply(this, arguments);
+};
+inherit(Child, Parent);
+
+var son = new Child();
+son.say();
+
+var dauther = new Child("Jaiko");
+dauther.say();
+
+
+}}}
+5. クラシカルな継承方法：最終形態{{{
+
+var inherit = (function() {
+    var F = function() {};
+    return function(C, P) {
+        F.prototype = P.prototype;
+        C.prototype = new F();
+        C.uber = P.prototype; // super のドイツ語みたいです
+        C.prototype.constructor = C;
+    };
+}());
+
+function Child() {}
+
+inherit(Child, Parent);
+
+var child = new Child();
+child.say();
+
+}}}
+6. モダンな継承{{{
+
+オブジェクトからオブジェクトへの継承
+
+
+// jQuery を読んでいることを前提
+// 書籍には書いてないけど代表的な記法
+var Child = function() {
+    Parent.apply(this, arguments);
+};
+Child.prototype = $.extend(true, {}, Parent.prototype, {
+    // Child class 特有の関数
+});
+    
+var son = new Child();
+son.say();
+
+
+}}}
+
+}}}
+
+
+}}}
+### デザインパターン ###{{{
+
+ここからが本番！！！
+
+== Singleton =={{{
+[目標]{{{
+
+var uni  = new Universe();
+var uni2 = new Universe();
+
+uni === uni2 // true
+
+}}}
+[実装]{{{
+function Universe() {
+    var instance = this;   // cache
+
+
+    // constructor を上書き
+    Universe = function () {
+        return instance;
+    };
+}
+
+}}}
+[問題]{{{
+ - あとで追加されたプロパティは参照できない
+
+Universe.prototype.nothing = true;
+var uni = new Universe();
+Universe.prototype.everything = true;
+var uni2 = new Universe();
+
+
+uni.nothing  // === true
+uni2.nothing // === true
+uni.everything  // === undefined
+uni2.everything // === undefined
+
+
+}}}
+[実装 その２]{{{
+function Universe() {
+    var instance;   // cache
+
+    // constructor を上書き
+    Universe = function () {
+        return instance;
+    };
+
+    // prototypeプロパティを引き継ぐ
+    Universe.prototype = this;
+
+    instance = new Universe();
+    return instance;
+}
+
+}}}
+[感想]{{{
+ - singletonならUniverse.getInstance()ってしたいなぁ
+
+[実装 その3]
+var Universe;
+(function() {
+    var instance;
+
+    Universe = {
+        getInstance: function() {
+            return instance;
+        }
+    }
+
+    (function() {
+        var Universe = function() {};
+        Universe.prototype = {
+            // .....
+        };
+
+        instance = new Universe();
+    })();
+})();
+
+// とかだめかな？
+// constructor名が_Universeなっちゃうけど
+
+uni  = Universe.getInstance();
+uni2 = Universe.getInstance();
+uni === uni2 // true
+uni.hasEarth = true;
+uni2.hasEarth // true
+
+
+}}}}}}
+== Factory =={{{
+[目標]{{{
+var carolla  = CarMaker.factory('Compact');
+var solstice = CarMaker.factory('Convertible');
+var cherokee = CarMaker.factory('SUV');
+
+carolla.drive();  // "Vroom, I have 4 doors"
+solstice.drive(); // "Vroom, I have 2 doors"
+cherokee.drive(); // "Vroom, I have 17 doors"
+
+//　似たようなオブジェクトを設定するとき繰り返される操作を実行（わかる）
+
+//　ファクトリの利用者に、コンパイル時の型（クラス）を知らなくてもオブジェクトを作成出来る手段を提供（わからん）
+
+//  2番目が特に大事 
+
+}}}
+[実装]{{{
+
+
+// 親クラス
+function CarMaker() {}
+
+CarMaker.prototype = {
+    doors: 0,
+
+    drive: function() {
+        return "Vroom, I have " + this.doors + " doors";
+    }
+};
+
+// static factory function
+CarMaker.factory = function(type) {
+    var constr = type,
+        newcar;
+
+
+    if (typeof CarMaker[constr] !== "function") {
+        throw {
+            name: "Error",
+            message: constr + " doesn't exist"
+        };
+    }
+
+    if (typeof CarMaker[constr].prototype.drive !== "function") {
+        CarMaker[constr].prototype = new CarMaker();
+    }
+
+    newcar = new CarMaker[constr]();
+    return newcar;
+};
+
+// 子クラス
+CarMaker.Compact = function() {   
+    this.doors = 4;
+};
+CarMaker.Convertible = function() {
+    this.doors = 2;
+};
+CarMaker.SUV = function() {
+    this.doors = 17;
+};
+
+
+}}}
+[感想]{{{
+ - こことかびみょうだなぁ。drive関数に依存している
+   > if (typeof CarMaker[constr].prototype.drive !== "function") {
+   jquery読み込んでいる環境なら$.isEmptyObject(CarMaker[constr].prototype)でいけないかな？
+
+ - CarMakerを継承するのではなく、生成されるプロダクト専用の親クラスを定義したほうがいいと思う。
+
+
+var CarFactory;
+(function() {
+    // 各プロダクトの親クラス
+    var Car = function() {};
+    Car.prototype = {
+        doors: 0,
+        drive: function() {
+            return "Vroom, I have " + this.doors + " doors";
+        }
+    };
+
+    // 各プロダクトの名称とコンストラクタ
+    var products = {
+        "Compact":     function() { this.doors =  4; },
+        "Convertible": function() { this.doors =  2; },
+        "SUV":         function() { this.doors = 17; },
+    };
+
+    CarFactory = {
+        create: function(type) {
+            var newcar,
+                Product = products[type];
+
+            if (typeof Product !== "function") {
+                throw {
+                    name: "Error",
+                    message: type + " doesn't exist"
+                };
+            }
+
+            if (typeof Product.prototype.drive !== "function") {
+                // 継承
+                Product.prototype = new Car();
+            }
+
+            newcar = new Product();
+            return newcar;
+        }
+    };
+})();
+
+var carolla  = CarFactory.create('Compact');
+var solstice = CarFactory.create('Convertible');
+var cherokee = CarFactory.create('SUV');
+
+carolla.drive();  // "Vroom, I have 4 doors"
+solstice.drive(); // "Vroom, I have 2 doors"
+cherokee.drive(); // "Vroom, I have 17 doors"
+
+
+
+}}}}}}
+== Decoration =={{{
+
+== Stragety ==
+
+== Observer ==
+
+== Proxy ==}}}
+
+}}}

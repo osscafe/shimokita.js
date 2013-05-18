@@ -4,7 +4,7 @@ Shimokita.js
 
 |次回開催日| イベントリンク |
 |:--------:|:--------------:|
-| __5/18(土)__| https://www.facebook.com/events/366004110177239/ |
+| __6/15(土)__| https://www.facebook.com/events/144033385780111/ |
 
 
 

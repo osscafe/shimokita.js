@@ -13,7 +13,7 @@
     - Shimokia.jsの[README](https://github.com/osscafe/shimokita.js)にまとめてます。
 
 
-### 大規模JavaScript開発について
+### 大規模JavaScript開発について (by [@tan_yuki](https://twitter.com/tan_yuki))
 
 - [プレゼン資料](http://www.slideshare.net/yukitanakanarachan/java-script-17005163)
 - 大規模になると大変なので最初からでかくなることを想定してコーディングしましょう
@@ -35,6 +35,10 @@
 - [enja-oss](https://github.com/enja-oss)
     - OSSのドキュメント・コメントを日本語訳するプロジェクト
 - あと忘れました。。。。だれか追記して下さい。
+    - chromeなんちゃらってのが思い出せん…  
+- [CodeKit](http://incident57.com/codekit/)
+- [Livereload](http://livereload.com/)
+    - HTMLとかCSSを書いたら自動でブラウザリロードして同期してくれる
 - [Fake](http://fakeapp.com/)
     - フロントエンドテスト自動化ツール
     - Seleniumの代わりになる？

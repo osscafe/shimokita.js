@@ -7,6 +7,11 @@ Shimokita.js
 | __6/15(土)__| https://www.facebook.com/events/144033385780111/ |
 
 
+### Hash tag
+
+```
+   #smktjs
+```
 
 ### Shimokita.jsができた背景
 - Shimokita.php, Shimokita.rb があってShimokita.jsがないのはおかしい！
